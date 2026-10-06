@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Claude Planner",
+    "slug": "claude-planner",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      ["expo-notifications", { "color": "#4f46e5" }],
+      "expo-secure-store"
+    ],
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.example.claudeplanner" },
+    "android": { "package": "com.example.claudeplanner", "permissions": ["POST_NOTIFICATIONS", "SCHEDULE_EXACT_ALARM"] }
+  }
+}
