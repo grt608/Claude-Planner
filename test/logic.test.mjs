@@ -38,3 +38,15 @@ test('ai json', () => {
   const o = extractJson('Sure! ```json\n{"title":"a","due":"2026-10-07T15:00"}\n```');
   assert.equal(fromLocalString(o.due).getHours(), 15);
 });
+
+import { buildICS, escapeText } from '../docs/ics.js';
+const BS = String.fromCharCode(92);
+test('ics escaping, folding and alarm', () => {
+  assert.equal(escapeText('a;b,c' + BS + 'd\ne'), 'a' + BS + ';b' + BS + ',c' + BS + BS + 'd' + BS + 'ne');
+  const s = buildICS([{ id: 'x', title: 'Dentist, 3pm; ÜÜ', description: 'é'.repeat(100), due: new Date(2026, 9, 9, 15, 0).toISOString() }], { now: new Date(Date.UTC(2026, 9, 6)) });
+  assert.ok(s.includes('SUMMARY:Dentist' + BS + ', 3pm' + BS + '; ÜÜ\r\n'));
+  assert.ok(s.includes('DTSTART:20261009T150000\r\n'));
+  assert.ok(s.includes('TRIGGER:-PT30M\r\n'));
+  assert.ok(s.split('\r\n').every((l) => new TextEncoder().encode(l).length <= 75));
+  assert.equal(s.replace(/\r\n /g, '').match(/DESCRIPTION:é+/)[0].length, 'DESCRIPTION:'.length + 100);
+});

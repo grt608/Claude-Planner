@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claude Planner</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Planner">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f6fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14131f" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#f6f6fb;--card:#fff;--ink:#1c1b29;--mute:#6b6a80;--brand:#4f46e5;--line:#e4e3ef;--h0:#ebeaf5;--h1:#c7d2fe;--h2:#818cf8;--h3:#4f46e5;--h4:#312e81;--warn:#f59e0b}
+@media (prefers-color-scheme:dark){:root{--bg:#14131f;--card:#1e1d2e;--ink:#f1f0fa;--mute:#9a99b3;--brand:#818cf8;--line:#2e2d44;--h0:#272639;--h1:#3b3a7a;--h2:#5b57c9;--h3:#7c78ee;--h4:#a5a2ff}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,system-ui,sans-serif}
+body{min-height:100dvh;padding:env(safe-area-inset-top) 0 calc(64px + env(safe-area-inset-bottom))}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:28px;margin:4px 0 8px;font-weight:800}
+.mute{color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px}
+textarea,input,select{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;-webkit-appearance:none;appearance:none}
+textarea{min-height:72px;resize:vertical}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+button{font:inherit;border:0;border-radius:12px;padding:13px 14px;background:var(--brand);color:#fff;font-weight:700;width:100%;margin-top:10px}
+button.sec{background:transparent;color:var(--brand);border:1px solid var(--line)}
+button.bad{background:transparent;color:#dc2626;border:1px solid var(--line)}
+button:disabled{opacity:.6}
+.row{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .t{flex:1;min-width:0}
+.row .name{font-weight:600}.row .name.done{text-decoration:line-through;color:var(--mute)}
+.row .when{color:var(--brand);font-weight:600;font-size:14px}
+.row .desc{color:var(--mute);font-size:14px}
+.chk{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--brand);background:transparent;padding:0;margin:0}
+.chk.on{background:var(--brand)}
+.note{color:var(--mute);margin:8px 0 0;font-size:14px}
+.soon{background:#fef3c7;color:#78350f;border-color:#fcd34d}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{background:none;color:var(--mute);margin:0;border-radius:0;font-weight:500;padding:16px 0}
+nav button.on{color:var(--brand);font-weight:800}
+.month h3{margin:0 0 6px;font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dow{text-align:center;font-size:12px;color:var(--mute)}
+.day{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;margin:0;padding:0;font-weight:500;color:var(--ink);width:auto}
+.day.h0{background:var(--h0)}.day.h1{background:var(--h1)}.day.h2{background:var(--h2);color:#fff}.day.h3{background:var(--h3);color:#fff}.day.h4{background:var(--h4);color:#fff}
+.day.today{outline:2px solid var(--ink)}.day.sel{outline:3px solid var(--warn)}
+.day.blank{background:none;pointer-events:none}
+.legend{display:flex;gap:4px;align-items:center;justify-content:center;margin:4px 0 20px}
+.legend i{width:16px;height:16px;border-radius:4px;display:block}
+dialog{border:0;border-radius:18px;padding:16px;width:min(560px,94vw);background:var(--bg);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;z-index:9;font-size:14px}
+</style>
+</head>
+<body>
+<main id="view"></main>
+<nav id="tabs">
+  <button data-tab="tasks">Tasks</button>
+  <button data-tab="year">Year</button>
+  <button data-tab="settings">Settings</button>
+</nav>
+<dialog id="edit"></dialog>
+<div id="toast" class="toast" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
