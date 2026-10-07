@@ -1,4 +1,4 @@
-import { createTaskFromText, toLocalString, fromLocalString } from './ai.js';
+import { createTaskFromText, toLocalString, fromLocalString, DEFAULT_MODEL } from './ai.js';
 import { buildICS } from './ics.js';
 import { buildYear, countByDay, dayKey } from './year.js';
 
@@ -24,6 +24,7 @@ const store = {
 const state = {
   tasks: store.get('planner.tasks.v1', []),
   key: store.get('planner.apiKey', ''),
+  model: store.get('planner.model', ''),
   tab: 'tasks',
   sel: dayKey(new Date()),
   busy: false,
@@ -53,8 +54,13 @@ function toast(msg, ms = 4000) {
 }
 
 // ---- delivering a file to the iPhone (calendar import / backup) ----
+// Research notes: the share sheet is the dependable path from an installed home-screen app
+// (downloads there can open a preview with no way back); a typed-Blob download link is the
+// dependable path in a normal Safari tab. Never navigate to a data: URL.
+const isStandalone = () => navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+
 async function deliver(filename, mime, text) {
-  const file = new File([text], filename, { type: mime });
+  const file = new File([text], filename, { type: mime.split(';')[0] });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], title: filename });
@@ -63,6 +69,7 @@ async function deliver(filename, mime, text) {
       if (e && e.name === 'AbortError') return 'cancelled';
     }
   }
+  if (isStandalone()) return 'unavailable';
   const url = URL.createObjectURL(new Blob([text], { type: mime }));
   const a = document.createElement('a');
   a.href = url;
@@ -77,8 +84,9 @@ async function deliver(filename, mime, text) {
 async function sendToCalendar(tasks) {
   const list = tasks.filter((t) => !t.done && new Date(t.due) > new Date());
   if (!list.length) return toast('Nothing upcoming to add.');
-  const r = await deliver(list.length === 1 ? 'task.ics' : 'planner-tasks.ics', 'text/calendar', buildICS(list, { lead: LEAD }));
+  const r = await deliver(list.length === 1 ? 'task.ics' : 'planner-tasks.ics', 'text/calendar;charset=utf-8', buildICS(list, { lead: LEAD }));
   if (r === 'cancelled') return;
+  if (r === 'unavailable') return toast('The share sheet did not open. Open this page in Safari (not the home-screen icon) and try again.', 8000);
   list.forEach((t) => (t.reminded = true));
   save();
   render();
@@ -90,14 +98,14 @@ async function addTask(text) {
   if (!text.trim() || state.busy) return;
   state.busy = true;
   render();
-  const r = await createTaskFromText(text, state.key);
+  const r = await createTaskFromText(text, state.key, new Date(), state.model || DEFAULT_MODEL);
   const task = { id: newId(), title: r.title, description: r.description, due: r.due.toISOString(), done: false, reminded: false };
   state.tasks.push(task);
   save();
   state.busy = false;
   state.draft = '';
   state.note =
-    r.source === 'local' ? (state.key ? 'AI unavailable, used basic parsing — check the time.' : 'Used basic parsing (add an API key in Settings for AI).') : '';
+    r.source === 'local' ? (state.key ? 'AI unavailable (' + (r.aiError || 'error') + '), used basic parsing — check the time.' : 'Used basic parsing (add an API key in Settings for AI).') : '';
   render();
   openEdit(task.id, true);
 }
@@ -127,6 +135,7 @@ function readEdit(id) {
   if (due && due.toISOString() !== t.due) {
     t.due = due.toISOString();
     t.reminded = false;
+    t.uid = newId(); // Calendar ignores an updated event that reuses a UID, so rescheduled tasks get a new one
   }
   save();
   return t;
@@ -174,7 +183,7 @@ function taskRow(t) {
 function installHint() {
   const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   if (standalone || state.hideInstall) return '';
-  return `<div class="card"><b>Install it</b><div class="note">In Safari tap the Share button, then <b>Add to Home Screen</b>. It then opens like a normal app and works offline.</div>
+  return `<div class="card"><b>Install it</b><div class="note">In Safari tap the Share button, then <b>Add to Home Screen</b> (leave <b>Open as Web App</b> on). Then open it from the icon and add your key and tasks there — the icon and Safari do not share data.</div>
     <button class="sec" data-a="hide-install">Got it</button></div>`;
 }
 
@@ -229,7 +238,10 @@ function settingsView() {
     <div class="card"><b>Anthropic API key (optional)</b>
       <p class="note">Lets Claude read your notes and fill in the title, details and time. Without it the app uses simple built-in parsing. The key stays on this phone and is sent only to api.anthropic.com. Anyone who can unlock this phone and open the app could read it.</p>
       <input id="key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="sk-ant-…" value="${esc(state.key)}">
-      <button data-a="save-key">Save key</button></div>
+      <label>Model</label>
+      <input id="model" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(DEFAULT_MODEL)}" value="${esc(state.model)}">
+      <p class="note">Leave blank for ${esc(DEFAULT_MODEL)}. If AI stops working, a model may have been retired — try another current model name.</p>
+      <button data-a="save-key">Save</button></div>
     <div class="card"><b>Reminders</b>
       <p class="note">iPhone web apps can't schedule their own alerts, so each task is sent to the Calendar app as an event with an alert ${LEAD} minutes before. Calendar then notifies you even when this app is closed.</p></div>
     <div class="card"><b>Backup</b>
@@ -294,7 +306,9 @@ document.addEventListener('click', async (e) => {
     render();
   } else if (a === 'save-key') {
     state.key = $('#key').value.trim();
+    state.model = $('#model').value.trim();
     store.set('planner.apiKey', state.key);
+    store.set('planner.model', state.model);
     toast('Saved.');
   } else if (a === 'export') deliver('planner-backup.json', 'application/json', JSON.stringify(state.tasks, null, 2));
   else if (a === 'import') $('#file').click();

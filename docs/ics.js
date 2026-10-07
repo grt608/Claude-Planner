@@ -43,7 +43,7 @@ export function buildICS(tasks, { lead = 30, minutes = 30, now = new Date() } = 
     const end = new Date(start.getTime() + minutes * 60000);
     lines.push(
       'BEGIN:VEVENT',
-      `UID:${t.id}@claude-planner`,
+      `UID:${t.uid || t.id}@claude-planner`,
       `DTSTAMP:${utc(now)}`,
       `DTSTART:${floating(start)}`,
       `DTEND:${floating(end)}`,

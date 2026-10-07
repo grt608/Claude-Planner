@@ -50,3 +50,36 @@ test('ics escaping, folding and alarm', () => {
   assert.ok(s.split('\r\n').every((l) => new TextEncoder().encode(l).length <= 75));
   assert.equal(s.replace(/\r\n /g, '').match(/DESCRIPTION:é+/)[0].length, 'DESCRIPTION:'.length + 100);
 });
+
+import { createTaskFromText, DEFAULT_MODEL } from '../docs/ai.js';
+test('ics uses uid override so rescheduled tasks import as new events', () => {
+  const base = { id: 'a', title: 'T', description: '', due: new Date(2026, 9, 9, 15, 0).toISOString() };
+  assert.ok(buildICS([base]).includes('UID:a@claude-planner'));
+  assert.ok(buildICS([{ ...base, uid: 'b' }]).includes('UID:b@claude-planner'));
+});
+test('browser AI call: model, headers and fallback', async () => {
+  const calls = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    calls.push({ url, init });
+    return { ok: true, json: async () => ({ content: [{ text: '{"title":"Dentist","description":"d","due":"2026-10-09T15:00"}' }] }) };
+  };
+  try {
+    const now = new Date(2026, 9, 7, 9, 0);
+    const r = await createTaskFromText('dentist friday 3pm', 'sk-test', now);
+    assert.equal(r.source, 'ai');
+    assert.equal(r.due.getHours(), 15);
+    const body = JSON.parse(calls[0].init.body);
+    assert.equal(body.model, DEFAULT_MODEL);
+    assert.equal(calls[0].init.headers['anthropic-dangerous-direct-browser-access'], 'true');
+    assert.equal(calls[0].init.headers['x-api-key'], 'sk-test');
+    await createTaskFromText('x', 'sk-test', now, 'custom-model');
+    assert.equal(JSON.parse(calls[1].init.body).model, 'custom-model');
+    globalThis.fetch = async () => ({ ok: false, status: 404 });
+    const f = await createTaskFromText('call mom tomorrow 3pm', 'sk-test', now);
+    assert.equal(f.source, 'local');
+    assert.match(f.aiError, /404/);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});

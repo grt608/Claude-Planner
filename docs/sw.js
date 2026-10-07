@@ -1,5 +1,5 @@
 // Offline app shell: serve cached files first, refresh them in the background.
-const CACHE = 'planner-v1';
+const CACHE = 'planner-v2';
 const SHELL = ['./', 'index.html', 'app.js', 'ai.js', 'parse.js', 'year.js', 'ics.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {

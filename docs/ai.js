@@ -1,6 +1,7 @@
 import { parseLocal } from './parse.js';
 
-const MODEL = 'claude-haiku-4-5-20251001';
+// Haiku 4.5 is listed as retiring no sooner than 2026-10-15, so default to Sonnet 5.5 and let the user override it.
+export const DEFAULT_MODEL = 'claude-sonnet-5-5';
 
 const pad = (n) => String(n).padStart(2, '0');
 export const toLocalString = (d) =>
@@ -23,10 +24,10 @@ export function extractJson(text) {
  * Turn free text ("dentist next friday 3pm, bring insurance card") into
  * { title, description, due: Date, source: 'ai' | 'local' }.
  */
-export async function createTaskFromText(text, apiKey, now = new Date()) {
+export async function createTaskFromText(text, apiKey, now = new Date(), model = DEFAULT_MODEL) {
   if (apiKey) {
     try {
-      const task = await askClaude(text, apiKey, now);
+      const task = await askClaude(text, apiKey, now, model || DEFAULT_MODEL);
       return { ...task, source: 'ai' };
     } catch (e) {
       const fallback = parseLocal(text, now);
@@ -36,7 +37,7 @@ export async function createTaskFromText(text, apiKey, now = new Date()) {
   return { ...parseLocal(text, now), source: 'local' };
 }
 
-async function askClaude(text, apiKey, now) {
+async function askClaude(text, apiKey, now, model) {
   const system = [
     'You turn a person\'s casual note into a planner task.',
     `Current local date/time: ${toLocalString(now)} (${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getDay()]}).`,
@@ -55,7 +56,7 @@ async function askClaude(text, apiKey, now) {
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       max_tokens: 300,
       system,
       messages: [{ role: 'user', content: text }],
