@@ -1,17 +1,31 @@
 // Repeat rules ("every Monday", "every 2 weeks", ...) evaluated in local time.
-// A repeat is { freq: 'DAILY'|'WEEKLY'|'MONTHLY'|'YEARLY', interval, byday?: ['MO', ...] }.
-// A task's series starts at task.due and never produces earlier dates.
+// A repeat is { freq: 'DAILY'|'WEEKLY'|'MONTHLY'|'YEARLY', interval, byday?: ['MO', ...] } (byday only for WEEKLY).
+// A task's current occurrence is task.due. Optional task.anchor is the date/time the series started with; the
+// pattern (time of day, day of month, week phase) always comes from it, so a daylight-saving gap or a one-off
+// move of the current occurrence can never shift the whole series.
 import { BYDAY } from './parse.js';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const WEEKDAYS = ['MO', 'TU', 'WE', 'TH', 'FR'];
+const weekIdx = (code) => (BYDAY.indexOf(code) + 6) % 7; // Monday = 0
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const withTime = (day, anchor) => new Date(day.getFullYear(), day.getMonth(), day.getDate(), anchor.getHours(), anchor.getMinutes(), 0, 0);
+const withTime = (day, pattern) => new Date(day.getFullYear(), day.getMonth(), day.getDate(), pattern.getHours(), pattern.getMinutes(), 0, 0);
 
-export function isValidRepeat(r) {
-  return !!r && ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(r.freq) && Number.isInteger(r.interval) && r.interval >= 1 && r.interval <= 99 &&
-    (r.byday === undefined || (Array.isArray(r.byday) && r.byday.length > 0 && r.byday.every((d) => BYDAY.includes(d))));
+/** A normalised copy of a repeat rule, or null if it is not a usable rule. */
+export function cleanRepeat(r) {
+  if (!r || typeof r !== 'object') return null;
+  const freq = String(r.freq || '').toUpperCase();
+  const interval = Math.floor(Number(r.interval) || 1);
+  if (!['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].includes(freq) || interval < 1 || interval > 99) return null;
+  const out = { freq, interval };
+  if (freq === 'WEEKLY' && Array.isArray(r.byday)) {
+    const days = [...new Set(r.byday.map((d) => String(d).toUpperCase()).filter((d) => BYDAY.includes(d)))].sort((a, b) => weekIdx(a) - weekIdx(b));
+    if (days.length) out.byday = days;
+  }
+  return out;
 }
+
+export const isValidRepeat = (r) => cleanRepeat(r) !== null;
 
 export function describeRepeat(r) {
   if (!r) return '';
@@ -19,7 +33,7 @@ export function describeRepeat(r) {
   if (r.freq === 'WEEKLY' && r.byday) {
     const same = (a) => a.length === r.byday.length && a.every((d) => r.byday.includes(d));
     if (n === 1 && same(WEEKDAYS)) return 'Weekdays';
-    const names = r.byday.map((d) => DAY_NAMES[BYDAY.indexOf(d)]).join(', ');
+    const names = [...r.byday].sort((a, b) => weekIdx(a) - weekIdx(b)).map((d) => DAY_NAMES[BYDAY.indexOf(d)]).join(', ');
     return n === 1 ? `Weekly on ${names}` : `Every ${n} weeks on ${names}`;
   }
   const unit = { DAILY: 'day', WEEKLY: 'week', MONTHLY: 'month', YEARLY: 'year' }[r.freq];
@@ -30,7 +44,7 @@ export function describeRepeat(r) {
 export function rruleOf(r) {
   const parts = [`FREQ=${r.freq}`];
   if (r.interval > 1) parts.push(`INTERVAL=${r.interval}`);
-  if (r.byday && r.byday.length) parts.push(`BYDAY=${r.byday.join(',')}`);
+  if (r.freq === 'WEEKLY' && r.byday && r.byday.length) parts.push(`BYDAY=${[...new Set(r.byday)].join(',')}`);
   return parts.join(';');
 }
 
@@ -60,41 +74,53 @@ export function repeatFromKey(key, due) {
   }
 }
 
-// Every occurrence of the series in order, starting at the anchor (task.due).
-function* series(task) {
-  const anchor = new Date(task.due);
-  const r = task.repeat;
+// The pattern's occurrences in order, starting at (or before) the pattern anchor.
+function* pattern(pat, r) {
   const n = Math.max(1, r.interval || 1);
   if (r.freq === 'DAILY') {
-    for (let k = 0; k < 40000; k++) {
-      const day = startOfDay(anchor);
+    for (let k = 0; k < 60000; k++) {
+      const day = startOfDay(pat);
       day.setDate(day.getDate() + k * n);
-      yield withTime(day, anchor);
+      yield withTime(day, pat);
     }
   } else if (r.freq === 'WEEKLY') {
-    const wanted = (r.byday && r.byday.length ? r.byday : [BYDAY[anchor.getDay()]])
-      .map((d) => (BYDAY.indexOf(d) + 6) % 7) // offset from Monday
-      .sort((a, b) => a - b);
-    const monday = startOfDay(anchor);
-    monday.setDate(monday.getDate() - ((anchor.getDay() + 6) % 7));
-    for (let k = 0; k < 6000; k++) {
+    const wanted = [...new Set((r.byday && r.byday.length ? r.byday : [BYDAY[pat.getDay()]]).map(weekIdx))].sort((a, b) => a - b);
+    const monday = startOfDay(pat);
+    monday.setDate(monday.getDate() - ((pat.getDay() + 6) % 7));
+    for (let k = 0; k < 9000; k++) {
       for (const off of wanted) {
         const day = new Date(monday);
         day.setDate(day.getDate() + k * 7 * n + off);
-        const at = withTime(day, anchor);
-        if (at >= anchor) yield at;
+        const at = withTime(day, pat);
+        if (at >= pat) yield at;
       }
     }
   } else if (r.freq === 'MONTHLY') {
-    for (let k = 0; k < 3000; k++) {
-      const at = new Date(anchor.getFullYear(), anchor.getMonth() + k * n, anchor.getDate(), anchor.getHours(), anchor.getMinutes());
-      if (at.getDate() === anchor.getDate()) yield at; // months without that day are skipped, like Calendar does
+    for (let k = 0; k < 4000; k++) {
+      const at = new Date(pat.getFullYear(), pat.getMonth() + k * n, pat.getDate(), pat.getHours(), pat.getMinutes());
+      if (at.getDate() === pat.getDate()) yield at; // months without that day are skipped, like Calendar does
     }
   } else if (r.freq === 'YEARLY') {
-    for (let k = 0; k < 500; k++) {
-      const at = new Date(anchor.getFullYear() + k * n, anchor.getMonth(), anchor.getDate(), anchor.getHours(), anchor.getMinutes());
-      if (at.getMonth() === anchor.getMonth()) yield at; // Feb 29 skips non-leap years
+    for (let k = 0; k < 600; k++) {
+      const at = new Date(pat.getFullYear() + k * n, pat.getMonth(), pat.getDate(), pat.getHours(), pat.getMinutes());
+      if (at.getMonth() === pat.getMonth()) yield at; // Feb 29 skips non-leap years
     }
+  }
+}
+
+// Every occurrence from the current one (task.due) onward. If task.due is off the pattern it still comes
+// first, like DTSTART in an iCalendar series.
+function* series(task) {
+  const start = new Date(task.due);
+  const pat = new Date(task.anchor || task.due);
+  let first = true;
+  for (const d of pattern(pat, task.repeat)) {
+    if (d < start) continue;
+    if (first) {
+      first = false;
+      if (+d !== +start) yield start;
+    }
+    yield d;
   }
 }
 

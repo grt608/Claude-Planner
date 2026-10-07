@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { buildICS, escapeText, trigger } from '../docs/ics.js';
-import { describeRepeat, nextOccurrence, occurrences, repeatFromKey, repeatKey, rruleOf } from '../docs/recur.js';
+import { cleanRepeat, describeRepeat, nextOccurrence, occurrences, repeatFromKey, repeatKey, rruleOf } from '../docs/recur.js';
+import { execFileSync } from 'node:child_process';
 import { buildYear, countByDay, dayKey, tasksOnDay } from '../docs/year.js';
 import { createTasksFromText, createTaskFromText, DEFAULT_MODEL, extractJson, fromLocalString, normalizeAiTask } from '../docs/ai.js';
 
@@ -146,4 +147,87 @@ test('src copies stay identical to the web app modules, and the service worker c
 test('local date strings reject impossible values', () => {
   for (const s of ['2026-02-30T10:00', '2026-13-01T10:00', '2026-10-07T24:00', '2026-10-07T10:60', 'nope', '']) assert.equal(fromLocalString(s), null, s);
   assert.equal(fromLocalString('2028-02-29T23:59').getDate(), 29);
+});
+
+test('repeat clean-up: case, duplicates, order, byday only for weekly, bounds', () => {
+  assert.deepEqual(cleanRepeat({ freq: 'weekly', interval: 1, byday: ['fr', 'MO', 'MO', 'xx'] }), { freq: 'WEEKLY', interval: 1, byday: ['MO', 'FR'] });
+  assert.deepEqual(cleanRepeat({ freq: 'MONTHLY', interval: 1, byday: ['MO'] }), { freq: 'MONTHLY', interval: 1 });
+  assert.deepEqual(cleanRepeat({ freq: 'WEEKLY', interval: 1, byday: ['SU', 'SA'] }).byday, ['SA', 'SU']);
+  for (const bad of [null, 'x', { freq: 'HOURLY', interval: 1 }, { freq: 'DAILY', interval: -1 }, { freq: 'DAILY', interval: 100 }]) assert.equal(cleanRepeat(bad), null);
+  assert.deepEqual(cleanRepeat({ freq: 'DAILY', interval: 0 }), { freq: 'DAILY', interval: 1 }); // a missing or zero interval means 1
+  assert.equal(rruleOf({ freq: 'MONTHLY', interval: 1, byday: ['MO'] }), 'FREQ=MONTHLY'); // a stray BYDAY must not make Calendar disagree with the app
+  const dup = task(D(2026, 10, 5), { freq: 'WEEKLY', interval: 1, byday: ['MO', 'MO'] });
+  assert.equal(occurrences(dup, D(2026, 10, 1, 0), D(2026, 10, 20, 0)).length, 3);
+  assert.equal(rruleOf(dup.repeat), 'FREQ=WEEKLY;BYDAY=MO');
+});
+
+test('an off-pattern current occurrence is still shown and exported as the first one', () => {
+  const t = task(D(2026, 10, 8, 18), { freq: 'WEEKLY', interval: 1, byday: ['MO', 'WE'] }); // a Thursday
+  assert.deepEqual(occurrences(t, D(2026, 10, 1, 0), D(2026, 10, 15, 0)).map(ymd), ['2026-10-8 18:00', '2026-10-12 18:00', '2026-10-14 18:00']);
+  assert.equal(ymd(nextOccurrence(t, D(2026, 10, 8, 18))), '2026-10-12 18:00');
+});
+
+test('a series keeps its own time of day across a daylight-saving gap (New York, 2026-03-08)', () => {
+  const code = `
+    import { occurrences, nextOccurrence } from '${new URL('../docs/recur.js', import.meta.url).pathname}';
+    import { buildICS } from '${new URL('../docs/ics.js', import.meta.url).pathname}';
+    const anchor = new Date(2026, 2, 6, 2, 30);
+    let t = { id: 'a', title: 'T', due: new Date(2026, 2, 7, 2, 30).toISOString(), anchor: anchor.toISOString(), repeat: { freq: 'DAILY', interval: 1 } };
+    const gap = nextOccurrence(t, new Date(2026, 2, 7, 3, 0));          // Mar 8: 02:30 does not exist
+    t = { ...t, due: gap.toISOString() };
+    const after = nextOccurrence(t, gap);                                 // Mar 9 must be back at 02:30
+    const ics = buildICS([t], { now: new Date(0) });
+    console.log(JSON.stringify({ gap: [gap.getDate(), gap.getHours()], after: [after.getDate(), after.getHours(), after.getMinutes()], dtstart: /DTSTART:(\\d+T\\d+)/.exec(ics)[1] }));
+  `;
+  const out = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', code], { env: { ...process.env, TZ: 'America/New_York' } }).toString());
+  assert.deepEqual(out.gap, [8, 3]);
+  assert.deepEqual(out.after, [9, 2, 30]);
+  assert.equal(out.dtstart, '20260308T023000'); // the export uses the series' time, not the shifted 03:30
+});
+
+test('calendar file hardening: ids, control characters, bad dates and durations', () => {
+  const stamp = { now: new Date(Date.UTC(2026, 9, 6)) };
+  const evil = buildICS([{ id: 'u\r\nATTENDEE:mailto:evil@x.com\r\nX-FOO:1', title: 'T', due: NOW.toISOString() }], stamp);
+  assert.ok(!/^ATTENDEE/m.test(evil) && !/^X-FOO/m.test(evil));
+  assert.equal(evil.match(/^UID:.*$/m)[0].includes('\r'), false);
+  const ctl = buildICS([{ id: 'c', title: 'a\u0000b\u000bc', description: 'line1\rline2\u0007', due: NOW.toISOString() }], stamp);
+  assert.ok(!/\r(?!\n)/.test(ctl), 'lone CR');
+  assert.ok(!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(ctl), 'control characters');
+  assert.ok(ctl.includes('DESCRIPTION:line1' + BS + 'nline2'));
+  const bad = buildICS([
+    { id: 'a', title: 'ok', due: NOW.toISOString() },
+    { id: 'b', title: 'nan', due: 'garbage' },
+    { id: 'c', title: 'far', due: new Date(Date.UTC(9999, 11, 31, 23, 50)).toISOString() },
+    { id: 'd', title: 'huge', due: NOW.toISOString(), duration: 1e15 },
+  ], stamp);
+  assert.equal(bad.split('BEGIN:VEVENT').length - 1, 2); // 'a' and 'd' (huge duration falls back to the default length); 'b' and 'c' are left out
+  assert.ok(!/NaN/.test(bad));
+  assert.ok(/DTEND:20261007T093000/.test(bad));
+  assert.equal(buildICS([{ id: 'y', title: 'old', due: new Date(2001, 0, 1, 9).toISOString() }], stamp).includes('DTSTART:20010101T090000'), true);
+});
+
+test('local date strings reject years that cannot be exported', () => {
+  assert.equal(fromLocalString('0050-01-01T10:00'), null);
+  assert.equal(fromLocalString('9999-12-31T10:00'), null);
+  assert.equal(fromLocalString('2026-10-07T10:00').getFullYear(), 2026);
+});
+
+test('ai: long titles are fitted, repeats cleaned, task cap noted', async () => {
+  const realFetch = globalThis.fetch;
+  try {
+    const longTitle = 'word '.repeat(40).trim();
+    globalThis.fetch = async () => ({
+      ok: true,
+      json: async () => ({
+        content: [{ text: JSON.stringify({ tasks: [{ title: longTitle, description: '', due: '2026-10-09T15:00', repeat: { freq: 'MONTHLY', interval: 1, byday: ['MO', 'MO'] } }, ...Array.from({ length: 24 }, (_, i) => ({ title: 't' + i, due: '2026-10-10T10:00' }))] }) }],
+      }),
+    });
+    const list = await createTasksFromText('x', 'sk-test', NOW);
+    assert.ok(list[0].title.length <= 80 && list[0].description.length > 0);
+    assert.deepEqual(list[0].repeat, { freq: 'MONTHLY', interval: 1 });
+    assert.equal(list.length, 20);
+    assert.ok(list[19].notes.some((n) => /Only the first 20/.test(n.text)));
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

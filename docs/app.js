@@ -1,7 +1,8 @@
 import { createTasksFromText, toLocalString, fromLocalString, DEFAULT_MODEL } from './ai.js';
 import { buildICS } from './ics.js';
 import { buildYear, countByDay, dayKey, tasksOnDay } from './year.js';
-import { describeRepeat, isValidRepeat, nextOccurrence, repeatFromKey, repeatKey } from './recur.js';
+import { cleanRepeat, describeRepeat, nextOccurrence, repeatFromKey, repeatKey } from './recur.js';
+import { MAX_DURATION_MIN, isPlausible } from './parse.js';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DEFAULTS = { lead: 30, alert2: 0, defaultTime: '09:00', lastBackup: null, nagUntil: null };
@@ -19,24 +20,37 @@ const store = {
   set(k, v) {
     try {
       localStorage.setItem(k, JSON.stringify(v));
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   },
 };
 
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
 
+// Ids end up in HTML attributes and calendar UIDs, so only plain characters are accepted.
+const SAFE_ID = /^[\w-]{1,64}$/;
+const SAFE_UID = /^[\w.-]{1,64}$/;
+
 function normalizeTask(t) {
-  if (!t || !t.id || !t.title || isNaN(new Date(t.due))) return null;
+  if (!t || typeof t !== 'object' || !t.id || !t.title) return null;
+  const due = new Date(t.due);
+  if (!isPlausible(due)) return null;
+  const dur = Number(t.duration);
+  const anchor = t.anchor ? new Date(t.anchor) : null;
+  const repeat = cleanRepeat(t.repeat);
   return {
-    id: String(t.id),
-    uid: t.uid ? String(t.uid) : undefined,
+    id: SAFE_ID.test(String(t.id)) ? String(t.id) : newId(),
+    uid: t.uid && SAFE_UID.test(String(t.uid)) ? String(t.uid) : undefined,
     title: String(t.title).slice(0, 200),
-    description: String(t.description || ''),
-    due: new Date(t.due).toISOString(),
+    description: String(t.description || '').slice(0, 2000),
+    due: due.toISOString(),
     done: !!t.done,
     reminded: !!t.reminded,
-    duration: t.duration > 0 ? Math.round(t.duration) : undefined,
-    repeat: isValidRepeat(t.repeat) ? t.repeat : null,
+    duration: Number.isFinite(dur) && dur > 0 && dur <= MAX_DURATION_MIN ? Math.round(dur) : undefined,
+    repeat,
+    anchor: repeat && anchor && isPlausible(anchor) ? anchor.toISOString() : undefined,
     cat: String(t.cat || '').toLowerCase().slice(0, 24),
   };
 }
@@ -57,6 +71,7 @@ const state = {
   cat: '',
   showDone: false,
   hideInstall: store.get('planner.hideInstall', false),
+  saveFailed: false,
 };
 
 const $ = (s) => document.querySelector(s);
@@ -69,8 +84,23 @@ const fmt = (iso) =>
   new Date(iso).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 const fmtDay = (key) => new Date(key + 'T00:00').toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
 const byDue = (a, b) => new Date(a.due) - new Date(b.due);
-const save = () => store.set('planner.tasks.v1', state.tasks);
-const saveSettings = () => store.set('planner.settings.v1', state.settings);
+let saveWarned = false;
+function persist(key, value) {
+  const ok = store.set(key, value);
+  if (ok) {
+    state.saveFailed = false;
+    saveWarned = false;
+  } else {
+    state.saveFailed = true;
+    if (!saveWarned) {
+      saveWarned = true;
+      toast('Could not save on this device. Your tasks will be lost when the app closes. Export a backup now.', 20000, { label: 'Back up', fn: exportBackup });
+    }
+  }
+  return ok;
+}
+const save = () => persist('planner.tasks.v1', state.tasks);
+const saveSettings = () => persist('planner.settings.v1', state.settings);
 const alerts = () => [state.settings.lead, state.settings.alert2].filter((n) => n > 0);
 const minLabel = (n) => (n % 1440 === 0 ? `${n / 1440} day${n === 1440 ? '' : 's'}` : n % 60 === 0 ? `${n / 60} hour${n === 60 ? '' : 's'}` : `${n} min`);
 const durLabel = (n) => (n % 60 === 0 ? `${n / 60} h` : n > 60 ? `${Math.floor(n / 60)} h ${n % 60} min` : `${n} min`);
@@ -153,12 +183,14 @@ function reschedule(t, due) {
   t.due = due.toISOString();
   t.reminded = false;
   t.uid = newId(); // Calendar ignores an updated event that reuses a UID, so a moved task gets a new one
+  t.anchor = undefined;
 }
 
 function completeTask(t) {
   if (t.repeat && !t.done) {
     const next = nextOccurrence(t, new Date(Math.max(Date.now(), new Date(t.due).getTime())));
     if (next) {
+      t.anchor = t.anchor || t.due; // keeps the series' own time of day through daylight-saving changes
       t.due = next.toISOString(); // the Calendar series keeps going on its own; only this list moves on
       save();
       render();
@@ -191,43 +223,44 @@ async function addTasks(text) {
   state.busy = true;
   state.recent = [];
   render();
-  const results = await createTasksFromText(text, state.key, new Date(), state.model || DEFAULT_MODEL, { defaultTime: state.settings.defaultTime });
+  let results;
   const created = [];
-  for (const r of results) {
-    let due = r.due;
-    let notes = r.notes.slice();
-    if (state.forDate && !r.dateUnderstood) {
-      const [y, m, d] = state.forDate.split('-').map(Number);
-      due = new Date(y, m - 1, d, due.getHours(), due.getMinutes());
-      notes = notes.filter((n) => !/No date/.test(n.text));
-      notes.push({ level: 'info', text: `Set for ${fmtDay(state.forDate)}.` });
+  try {
+    results = await createTasksFromText(text, state.key, new Date(), state.model || DEFAULT_MODEL, { defaultTime: state.settings.defaultTime });
+    for (const r of results) {
+      let due = r.due;
+      let notes = r.notes.slice();
+      const noDate = r.dateGiven === undefined ? !r.dateUnderstood : !r.dateGiven && !r.repeat;
+      if (state.forDate && noDate) {
+        const [y, m, d] = state.forDate.split('-').map(Number);
+        due = new Date(y, m - 1, d, due.getHours(), due.getMinutes());
+        notes = notes.filter((n) => !/No date|not valid|out of range/.test(n.text));
+        notes.push({ level: 'info', text: `Set for ${fmtDay(state.forDate)}.` });
+      }
+      const t = normalizeTask({ id: newId(), title: r.title, description: r.description || '', due, duration: r.durationMin || undefined, repeat: r.repeat || null, cat: r.cat || '' });
+      if (!t) continue;
+      state.tasks.push(t);
+      created.push({ id: t.id, notes });
     }
-    const t = {
-      id: newId(),
-      title: r.title,
-      description: r.description || '',
-      due: due.toISOString(),
-      done: false,
-      reminded: false,
-      duration: r.durationMin || undefined,
-      repeat: r.repeat || null,
-      cat: r.cat || '',
-    };
-    state.tasks.push(t);
-    created.push({ id: t.id, notes });
+    save();
+  } catch (e) {
+    state.busy = false;
+    render();
+    return toast('Something went wrong adding that. Your text is still in the box.', 6000);
   }
-  save();
   const first = results[0];
   state.note = first && first.source === 'local' ? (state.key ? `AI unavailable (${first.aiError || 'error'}), used built-in parsing.` : 'Built-in parsing used. Add an API key in Settings for AI.') : '';
   state.busy = false;
-  state.draft = '';
+  // clear only what was submitted; anything typed while waiting stays
+  if (state.draft.startsWith(text)) state.draft = state.draft.slice(text.length).trimStart();
   state.forDate = null;
-  if (created.length === 1) {
+  if (created.length === 1 && !dlg.open) {
     render();
     openEdit(created[0].id, { fresh: true, notes: created[0].notes });
   } else {
     state.recent = created;
     render();
+    if (dlg.open) toast(`Added ${created.length} task${created.length === 1 ? '' : 's'}.`);
   }
 }
 
@@ -257,23 +290,28 @@ function openEdit(id, { fresh = false, notes = [] } = {}) {
     </div>
     <label>Category</label><input id="e-cat" list="cats" autocapitalize="off" placeholder="e.g. school" value="${esc(t.cat)}"><datalist id="cats">${cats.map((c) => `<option value="${esc(c)}">`).join('')}</datalist>
     ${repNote}
-    <button data-a="e-cal" data-id="${t.id}">🔔 Save &amp; add reminder to Calendar</button>
-    <button class="sec" data-a="e-save" data-id="${t.id}">Save</button>
-    <label>Move it</label>
+    <button data-a="e-cal" data-id="${esc(t.id)}">🔔 Save &amp; add reminder to Calendar</button>
+    <button class="sec" data-a="e-save" data-id="${esc(t.id)}">Save</button>
+    ${
+      t.repeat
+        ? '<p class="note">This task repeats. Change “When” to move the whole series, or use “Done” to jump to the next time.</p>'
+        : `<label>Move it</label>
     <div class="three">
-      <button class="sec" data-a="e-snooze" data-k="hour" data-id="${t.id}">+1 hour</button>
-      <button class="sec" data-a="e-snooze" data-k="day" data-id="${t.id}">Tomorrow</button>
-      <button class="sec" data-a="e-snooze" data-k="week" data-id="${t.id}">Next week</button>
-    </div>
-    <button class="sec" data-a="e-done" data-id="${t.id}">${t.done ? 'Mark not done' : t.repeat ? 'Done — go to next time' : 'Mark done'}</button>
-    <button class="bad" data-a="e-del" data-id="${t.id}">Delete</button>
+      <button class="sec" data-a="e-snooze" data-k="hour" data-id="${esc(t.id)}">+1 hour</button>
+      <button class="sec" data-a="e-snooze" data-k="day" data-id="${esc(t.id)}">Tomorrow</button>
+      <button class="sec" data-a="e-snooze" data-k="week" data-id="${esc(t.id)}">Next week</button>
+    </div>`
+    }
+    <button class="sec" data-a="e-done" data-id="${esc(t.id)}">${t.done ? 'Mark not done' : t.repeat ? 'Done — go to next time' : 'Mark done'}</button>
+    <button class="bad" data-a="e-del" data-id="${esc(t.id)}">Delete</button>
     ${t.reminded ? '<p class="note">A reminder for the old time may already be in Calendar — if you change the time, length or repeat, delete the old event there.</p>' : ''}`;
   dlg.showModal();
 }
 
 function readEdit(id) {
   const t = find(id);
-  const due = fromLocalString($('#e-due').value) || new Date(t.due);
+  const field = $('#e-due').value;
+  const due = field === toLocalString(new Date(t.due)) ? new Date(t.due) : fromLocalString(field) || new Date(t.due); // the field has no seconds: leave an untouched time alone
   const dur = Number($('#e-dur').value) || 30;
   const key = $('#e-rep').value;
   const before = JSON.stringify([t.due, t.duration || 30, t.repeat]);
@@ -286,6 +324,7 @@ function readEdit(id) {
   if (JSON.stringify([t.due, t.duration || 30, t.repeat]) !== before) {
     t.reminded = false;
     t.uid = newId();
+    t.anchor = undefined; // a new date or repeat starts a new series
   }
   save();
   return t;
@@ -305,6 +344,7 @@ dlg.addEventListener('click', async (e) => {
     sendToCalendar([t]);
   } else if (a === 'e-snooze') {
     const t = readEdit(id);
+    if (t.repeat) return;
     const due = new Date(t.due);
     const base = Math.max(due.getTime(), Date.now());
     let next;
@@ -317,7 +357,6 @@ dlg.addEventListener('click', async (e) => {
       next = new Date(day.getFullYear(), day.getMonth(), day.getDate(), due.getHours(), due.getMinutes());
     }
     reschedule(t, next);
-    if (t.repeat && t.repeat.byday && t.repeat.byday.length === 1) t.repeat = repeatFromKey('weekly', next);
     save();
     dlg.close();
     toast(`Moved to ${fmt(t.due)}. Add a new reminder to Calendar if you need one.`, 6000);
@@ -340,8 +379,8 @@ function rowHtml(t, { at, check = true } = {}) {
     t.duration ? `<span class="chip">${esc(durLabel(t.duration))}</span>` : '',
   ].join('');
   return `<div class="row">
-    ${check ? `<button class="chk ${t.done ? 'on' : ''}" data-a="toggle" data-id="${t.id}" aria-label="${t.done ? 'Mark not done' : 'Mark done'}"></button>` : '<span class="chk-gap"></span>'}
-    <div class="t" data-a="open" data-id="${t.id}" role="button" tabindex="0">
+    ${check ? `<button class="chk ${t.done ? 'on' : ''}" data-a="toggle" data-id="${esc(t.id)}" aria-label="${t.done ? 'Mark not done' : 'Mark done'}"></button>` : '<span class="chk-gap"></span>'}
+    <div class="t" data-a="open" data-id="${esc(t.id)}" role="button" tabindex="0">
       <div class="name ${t.done ? 'done' : ''}">${esc(t.title)}</div>
       ${t.description ? `<div class="desc">${esc(t.description)}</div>` : ''}
       <div class="when">${esc(fmt(when))}${t.reminded ? ' · 🔔' : ''}</div>
@@ -368,6 +407,7 @@ function tasksView() {
   const q = state.q.trim().toLowerCase();
   const all = state.tasks;
   const cats = [...new Set(all.map((t) => t.cat).filter(Boolean))].sort();
+  if (state.cat && !cats.includes(state.cat)) state.cat = ''; // the category it pointed at no longer exists
   const match = (t) => (!q || (t.title + ' ' + t.description + ' ' + t.cat).toLowerCase().includes(q)) && (!state.cat || t.cat === state.cat);
   const list = all.filter(match).sort(byDue);
   const open = list.filter((t) => !t.done);
@@ -384,11 +424,12 @@ function tasksView() {
     .filter((r) => r.t);
 
   return `<h1>Planner</h1>
+    ${state.saveFailed ? '<div class="card soon"><b>⚠️ Not saving</b><div class="note">This device is not letting the app store your tasks, so they will be lost when it closes. Export a backup now (Settings → Export backup).</div></div>' : ''}
     ${installHint()}
     ${soon.length ? `<div class="card soon"><b>⏰ Starting soon</b>${soon.map((t) => `<div>${esc(t.title)} — ${esc(fmt(t.due))}</div>`).join('')}</div>` : ''}
     <div class="card">
       ${state.forDate ? `<p class="msg info">Adding for <b>${esc(fmtDay(state.forDate))}</b>. Tasks without a date go there. <a href="#" data-a="clear-for">Clear</a></p>` : ''}
-      <textarea id="draft" enterkeyhint="done" placeholder="e.g. Dentist next Friday 3pm — bring insurance card">${esc(state.draft)}</textarea>
+      <textarea id="draft" enterkeyhint="done" maxlength="5000" placeholder="e.g. Dentist next Friday 3pm — bring insurance card">${esc(state.draft)}</textarea>
       <p class="hint">Tip: several tasks at once (one per line or comma-separated), “every Monday 6pm”, “2-3pm”, #school. Tap the keyboard’s mic to dictate.</p>
       <button data-a="add" ${state.busy ? 'disabled' : ''}>${state.busy ? 'Working…' : '✨ Create task'}</button>
       ${state.note ? `<p class="note">${esc(state.note)}</p>` : ''}
