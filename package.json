@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "test": "node --test test/logic.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "sync": "cp docs/ai.js docs/parse.js docs/recur.js docs/year.js src/"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

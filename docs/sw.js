@@ -1,6 +1,6 @@
 // Offline app shell: online -> always fetch the newest files (and refresh the cache); offline -> serve the cache.
-const CACHE = 'planner-v3';
-const SHELL = ['./', 'index.html', 'app.js', 'ai.js', 'parse.js', 'year.js', 'ics.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'planner-v4';
+const SHELL = ['./', 'index.html', 'app.js', 'ai.js', 'parse.js', 'recur.js', 'year.js', 'ics.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

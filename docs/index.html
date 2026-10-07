@@ -55,6 +55,27 @@ nav button.on{color:var(--brand);font-weight:800}
 dialog{border:0;border-radius:18px;padding:16px;width:min(560px,94vw);background:var(--bg);color:var(--ink)}
 dialog::backdrop{background:rgba(0,0,0,.45)}
 .toast{position:fixed;left:16px;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;z-index:9;font-size:14px}
+.hint{color:var(--mute);font-size:13px;margin:8px 0 0}
+.msg{margin:8px 0;padding:8px 10px;border-radius:10px;font-size:14px}
+.msg.warn{background:#fef3c7;color:#78350f}
+.msg.info{background:var(--h0);color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.three button{margin-top:0;padding:11px 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{font-size:12px;color:var(--mute);background:var(--h0);border-radius:999px;padding:2px 8px}
+.pill{width:auto;margin:0;padding:6px 12px;font-size:14px;border-radius:999px;background:var(--h0);color:var(--ink);font-weight:600}
+.pill.on{background:var(--brand);color:#fff}
+.cats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.filter input{margin:0}
+.sec-h{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);margin:18px 4px 8px}
+.sec-h a{color:inherit;text-decoration:none}
+.sec-h.bad-h,.bad-link{color:#dc2626}
+.chk-gap{flex:none;width:26px}
+.toast-btn{width:auto;display:inline;margin:0 0 0 8px;padding:4px 10px;border-radius:8px;background:var(--bg);color:var(--ink);font-size:14px}
+.msg a{color:var(--brand);font-weight:700}
+.row .t{cursor:pointer}
+button:focus-visible,.row .t:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
 </style>
 </head>
 <body>

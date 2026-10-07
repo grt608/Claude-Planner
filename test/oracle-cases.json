@@ -1,0 +1,2632 @@
+[
+ {
+  "input": "Dentist friday 3pm",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-09T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Upcoming Friday is Oct 9; 3pm = 15:00."
+ },
+ {
+  "input": "call mom on Tuesday",
+  "expect": [
+   {
+    "title": "Call mom",
+    "due": "2026-10-13T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Today is Tuesday but default 09:00 already passed (now 22:05), so +7 days."
+ },
+ {
+  "input": "Submit report tuesday 11pm",
+  "expect": [
+   {
+    "title": "Submit report",
+    "due": "2026-10-06T23:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Today is Tuesday and 23:00 is still in the future, so today counts."
+ },
+ {
+  "input": "Write post tues 9am",
+  "expect": [
+   {
+    "title": "Write post",
+    "due": "2026-10-13T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'tues' is Tuesday; 09:00 today has passed so +7 days."
+ },
+ {
+  "input": "Lunch with Sam next friday at 1pm",
+  "expect": [
+   {
+    "title": "Lunch with Sam",
+    "due": "2026-10-16T13:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Next friday = Friday of the following calendar week = Oct 16."
+ },
+ {
+  "input": "next monday standup 10am",
+  "expect": [
+   {
+    "title": "Standup",
+    "due": "2026-10-12T10:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Next monday = Oct 12."
+ },
+ {
+  "input": "Planning next tuesday 8am",
+  "expect": [
+   {
+    "title": "Planning",
+    "due": "2026-10-13T08:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Next tuesday = Tuesday of the following week = Oct 13."
+ },
+ {
+  "input": "Clean garage next sun 10am",
+  "expect": [
+   {
+    "title": "Clean garage",
+    "due": "2026-10-18T10:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Weeks start Monday, so the following week's Sunday is Oct 18."
+ },
+ {
+  "input": "Haircut next wed 1pm",
+  "expect": [
+   {
+    "title": "Haircut",
+    "due": "2026-10-14T13:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Next wed = Wednesday of the following week = Oct 14."
+ },
+ {
+  "input": "this thurs gym 6pm",
+  "expect": [
+   {
+    "title": "Gym",
+    "due": "2026-10-08T18:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'this thurs' = plain upcoming Thursday = Oct 8."
+ },
+ {
+  "input": "Drinks this friday 5pm",
+  "expect": [
+   {
+    "title": "Drinks",
+    "due": "2026-10-09T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'this friday' is plain Friday = Oct 9."
+ },
+ {
+  "input": "Meeting wed 2pm",
+  "expect": [
+   {
+    "title": "Meeting",
+    "due": "2026-10-07T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Upcoming Wednesday is tomorrow, Oct 7."
+ },
+ {
+  "input": "Dentist weds 10am",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-07T10:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'weds' is Wednesday = Oct 7."
+ },
+ {
+  "input": "mon 9am sync",
+  "expect": [
+   {
+    "title": "Sync",
+    "due": "2026-10-12T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Upcoming Monday is Oct 12."
+ },
+ {
+  "input": "Yoga Sat 7am",
+  "expect": [
+   {
+    "title": "Yoga",
+    "due": "2026-10-10T07:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Upcoming Saturday is Oct 10; explicit 7am."
+ },
+ {
+  "input": "Dinner sun at 6",
+  "expect": [
+   {
+    "title": "Dinner",
+    "due": "2026-10-11T18:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'at 6' with no am/pm: hours 1-6 mean PM, so 18:00 on Sunday Oct 11."
+ },
+ {
+  "input": "Dentist thursday",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-08T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Date but no time defaults to 09:00."
+ },
+ {
+  "input": "Pay rent 2026-11-02",
+  "expect": [
+   {
+    "title": "Pay rent",
+    "due": "2026-11-02T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "ISO date, default time."
+ },
+ {
+  "input": "2026-12-25 wrap gifts 4pm",
+  "expect": [
+   {
+    "title": "Wrap gifts",
+    "due": "2026-12-25T16:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "ISO date at start, 4pm = 16:00."
+ },
+ {
+  "input": "Pay bill Oct 20",
+  "expect": [
+   {
+    "title": "Pay bill",
+    "due": "2026-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Oct 20 is still ahead this year."
+ },
+ {
+  "input": "Pay bill October 5th",
+  "expect": [
+   {
+    "title": "Pay bill",
+    "due": "2027-10-05T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Oct 5 2026 already passed, so it rolls to next year."
+ },
+ {
+  "input": "Oct 6 9pm movie",
+  "expect": [
+   {
+    "title": "Movie",
+    "due": "2027-10-06T21:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Oct 6 21:00 has already passed (now 22:05), so next year."
+ },
+ {
+  "input": "Oct 6 11:30pm stretch",
+  "expect": [
+   {
+    "title": "Stretch",
+    "due": "2026-10-06T23:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Oct 6 23:30 is still in the future so same year."
+ },
+ {
+  "input": "20 Oct team lunch 12:30pm",
+  "expect": [
+   {
+    "title": "Team lunch",
+    "due": "2026-10-20T12:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'20 Oct' format with explicit 12:30pm."
+ },
+ {
+  "input": "Concert 20th of October 8pm",
+  "expect": [
+   {
+    "title": "Concert",
+    "due": "2026-10-20T20:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'20th of October' format, 8pm = 20:00."
+ },
+ {
+  "input": "pay tax 20th oct 2027",
+  "expect": [
+   {
+    "title": "Pay tax",
+    "due": "2027-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Explicit year given; default 09:00; lowercase input."
+ },
+ {
+  "input": "Nov 15 2026 dentist 2pm",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-11-15T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Month-name date with year, 2pm = 14:00."
+ },
+ {
+  "input": "Anniversary 12/25",
+  "expect": [
+   {
+    "title": "Anniversary",
+    "due": "2026-12-25T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "US M/D with no year, still ahead this year."
+ },
+ {
+  "input": "File claim 9/30",
+  "expect": [
+   {
+    "title": "File claim",
+    "due": "2027-09-30T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Sep 30 2026 passed, so next year."
+ },
+ {
+  "input": "Flight 1/1/27 6am",
+  "expect": [
+   {
+    "title": "Flight",
+    "due": "2027-01-01T06:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Two-digit year 27 = 2027."
+ },
+ {
+  "input": "Birthday party 2/14/2027 at 7pm",
+  "expect": [
+   {
+    "title": "Birthday party",
+    "due": "2027-02-14T19:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "M/D/YYYY with 7pm."
+ },
+ {
+  "input": "Return book on the 15th",
+  "expect": [
+   {
+    "title": "Return book",
+    "due": "2026-10-15T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "The 15th is still ahead this month; default 09:00."
+ },
+ {
+  "input": "Pay taxes the 5th",
+  "expect": [
+   {
+    "title": "Pay taxes",
+    "due": "2026-11-05T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "The 5th of October has passed, so next month."
+ },
+ {
+  "input": "Rent due on the 6th at 11pm",
+  "expect": [
+   {
+    "title": "Rent",
+    "due": "2026-10-06T23:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Oct 6 23:00 is still in the future; 'due' trimmed from the title end."
+ },
+ {
+  "input": "the 6th 9am water plants",
+  "expect": [
+   {
+    "title": "Water plants",
+    "due": "2026-11-06T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Oct 6 09:00 has passed, so next month's 6th."
+ },
+ {
+  "input": "Pay rent on the 1st",
+  "expect": [
+   {
+    "title": "Pay rent",
+    "due": "2026-11-01T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "The 1st already passed this month, so Nov 1."
+ },
+ {
+  "input": "Close books the 31st",
+  "expect": [
+   {
+    "title": "Close books",
+    "due": "2026-10-31T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "The 31st is still ahead this month."
+ },
+ {
+  "input": "TOMORROW 10AM buy milk",
+  "expect": [
+   {
+    "title": "Buy milk",
+    "due": "2026-10-07T10:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Case-insensitive; tomorrow = Oct 7."
+ },
+ {
+  "input": "Call bank tmrw 4pm",
+  "expect": [
+   {
+    "title": "Call bank",
+    "due": "2026-10-07T16:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "tmrw = tomorrow."
+ },
+ {
+  "input": "Email Tom day after tomorrow",
+  "expect": [
+   {
+    "title": "Email Tom",
+    "due": "2026-10-08T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Day after tomorrow = Oct 8; name stays in title."
+ },
+ {
+  "input": "Pack bags today 11pm",
+  "expect": [
+   {
+    "title": "Pack bags",
+    "due": "2026-10-06T23:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Today at 23:00."
+ },
+ {
+  "input": "Review notes next week",
+  "expect": [
+   {
+    "title": "Review notes",
+    "due": "2026-10-13T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Next week = +7 days, default 09:00."
+ },
+ {
+  "input": "Gym next week at 6pm",
+  "expect": [
+   {
+    "title": "Gym",
+    "due": "2026-10-13T18:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "+7 days with stated time."
+ },
+ {
+  "input": "Renew passport next month",
+  "expect": [
+   {
+    "title": "Renew passport",
+    "due": "2026-11-06T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Next month = +1 month same day."
+ },
+ {
+  "input": "Backup end of month 5pm",
+  "expect": [
+   {
+    "title": "Backup",
+    "due": "2026-10-31T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "End of month = Oct 31."
+ },
+ {
+  "input": "Send invoice end of week",
+  "expect": [
+   {
+    "title": "Send invoice",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "End of week = this week's Friday, Oct 9."
+ },
+ {
+  "input": "Hike this weekend 8am",
+  "expect": [
+   {
+    "title": "Hike",
+    "due": "2026-10-10T08:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "This weekend = coming Saturday Oct 10."
+ },
+ {
+  "input": "Follow up in 2 weeks",
+  "expect": [
+   {
+    "title": "Follow up",
+    "due": "2026-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "In 2 weeks shifts date by 14 days; default 09:00; 'in' trimmed."
+ },
+ {
+  "input": "Gym thurs 7am #health",
+  "expect": [
+   {
+    "title": "Gym",
+    "due": "2026-10-08T07:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": "health"
+   }
+  ],
+  "why": "Tag sets cat and is removed."
+ },
+ {
+  "input": "Call mom friday 5pm\nPay rent on the 1st",
+  "expect": [
+   {
+    "title": "Call mom",
+    "due": "2026-10-09T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Pay rent",
+    "due": "2026-11-01T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "A newline starts a new task."
+ },
+ {
+  "input": "call mom at 3pm",
+  "expect": [
+   {
+    "title": "Call mom",
+    "due": "2026-10-07T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Time only; 15:00 today already passed at 22:05, so tomorrow."
+ },
+ {
+  "input": "Dentist tomorrow at 3:30 pm",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-07T15:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Explicit pm with minutes and a space."
+ },
+ {
+  "input": "meeting tomorrow 15:30",
+  "expect": [
+   {
+    "title": "Meeting",
+    "due": "2026-10-07T15:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "24-hour time."
+ },
+ {
+  "input": "Gym tomorrow at 3",
+  "expect": [
+   {
+    "title": "Gym",
+    "due": "2026-10-07T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Bare 'at 3': hours 1-6 mean PM."
+ },
+ {
+  "input": "standup tomorrow at 9",
+  "expect": [
+   {
+    "title": "Standup",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Bare 'at 9': hours 7-11 mean AM."
+ },
+ {
+  "input": "Lunch tomorrow at 12",
+  "expect": [
+   {
+    "title": "Lunch",
+    "due": "2026-10-07T12:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Bare 'at 12' means noon."
+ },
+ {
+  "input": "lunch with Tom tomorrow at noon",
+  "expect": [
+   {
+    "title": "Lunch with Tom",
+    "due": "2026-10-07T12:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "noon = 12:00; name Tom stays in title."
+ },
+ {
+  "input": "Submit report friday eod",
+  "expect": [
+   {
+    "title": "Submit report",
+    "due": "2026-10-09T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "eod = 17:00; upcoming Friday is Oct 9."
+ },
+ {
+  "input": "backup at midnight",
+  "expect": [
+   {
+    "title": "Backup",
+    "due": "2026-10-07T00:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Midnight with no date is 00:00 of the next day."
+ },
+ {
+  "input": "Movie night",
+  "expect": [
+   {
+    "title": "Movie night",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Standalone 'night' stays in title; neither date nor time gives tomorrow 09:00."
+ },
+ {
+  "input": "morning run",
+  "expect": [
+   {
+    "title": "Morning run",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Standalone 'morning' is part of the title; default tomorrow 09:00."
+ },
+ {
+  "input": "pack bags tomorrow morning",
+  "expect": [
+   {
+    "title": "Pack bags",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "morning after a day word = 09:00."
+ },
+ {
+  "input": "Dinner friday evening",
+  "expect": [
+   {
+    "title": "Dinner",
+    "due": "2026-10-09T18:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "evening after a day word = 18:00; Friday Oct 9."
+ },
+ {
+  "input": "call Bob in the evening",
+  "expect": [
+   {
+    "title": "Call Bob",
+    "due": "2026-10-07T18:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'in the evening' is 18:00; time only and already passed today, so tomorrow; 'in' trimmed."
+ },
+ {
+  "input": "water plants in 30 minutes",
+  "expect": [
+   {
+    "title": "Water plants",
+    "due": "2026-10-06T22:35",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Exactly now + 30 min."
+ },
+ {
+  "input": "take pizza out in 2 hours",
+  "expect": [
+   {
+    "title": "Take pizza out",
+    "due": "2026-10-07T00:05",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "now + 2h crosses midnight."
+ },
+ {
+  "input": "check oven in an hour",
+  "expect": [
+   {
+    "title": "Check oven",
+    "due": "2026-10-06T23:05",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'an hour' = 1 hour from now."
+ },
+ {
+  "input": "email Sam in 3 days at 2pm",
+  "expect": [
+   {
+    "title": "Email Sam",
+    "due": "2026-10-09T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Date shift of 3 days with stated time."
+ },
+ {
+  "input": "review in 2 weeks",
+  "expect": [
+   {
+    "title": "Review",
+    "due": "2026-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Weeks shift with default 09:00."
+ },
+ {
+  "input": "workshop tomorrow 2-3pm",
+  "expect": [
+   {
+    "title": "Workshop",
+    "due": "2026-10-07T14:00",
+    "durationMin": 60,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Start copies end's pm: 14:00-15:00."
+ },
+ {
+  "input": "Team sync friday from 9 to 5pm",
+  "expect": [
+   {
+    "title": "Team sync",
+    "due": "2026-10-09T09:00",
+    "durationMin": 480,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "9pm would be after 5pm, so start uses am: 9am-5pm."
+ },
+ {
+  "input": "interview 11-1pm tomorrow",
+  "expect": [
+   {
+    "title": "Interview",
+    "due": "2026-10-07T11:00",
+    "durationMin": 120,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "11pm after 1pm, so start is am: 11:00-13:00."
+ },
+ {
+  "input": "write essay tomorrow at 4pm for 2 hours",
+  "expect": [
+   {
+    "title": "Write essay",
+    "due": "2026-10-07T16:00",
+    "durationMin": 120,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Duration phrase removed from title."
+ },
+ {
+  "input": "call Dad tomorrow 7pm for half an hour",
+  "expect": [
+   {
+    "title": "Call Dad",
+    "due": "2026-10-07T19:00",
+    "durationMin": 30,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'for half an hour' = 30."
+ },
+ {
+  "input": "study at 10 for 90 min",
+  "expect": [
+   {
+    "title": "Study",
+    "due": "2026-10-07T10:00",
+    "durationMin": 90,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Bare 'at 10' = 10 AM; passed today so tomorrow."
+ },
+ {
+  "input": "walk the dog at 8",
+  "expect": [
+   {
+    "title": "Walk the dog",
+    "due": "2026-10-07T08:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Bare 'at 8' = 8 AM; passed today so tomorrow."
+ },
+ {
+  "input": "tea at 5:30",
+  "expect": [
+   {
+    "title": "Tea",
+    "due": "2026-10-07T17:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Bare 5:30 with no am/pm: hours 1-6 PM; 17:30 passed today so tomorrow."
+ },
+ {
+  "input": "Brunch tomorrow 12:30",
+  "expect": [
+   {
+    "title": "Brunch",
+    "due": "2026-10-07T12:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "12:xx without am/pm stays 12:30 (PM)."
+ },
+ {
+  "input": "alarm tomorrow 09:30",
+  "expect": [
+   {
+    "title": "Alarm",
+    "due": "2026-10-07T09:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Leading zero means 24-hour."
+ },
+ {
+  "input": "flight tomorrow at 0:45",
+  "expect": [
+   {
+    "title": "Flight",
+    "due": "2026-10-07T00:45",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Hour 0 is 24-hour."
+ },
+ {
+  "input": "pay rent 3 p.m. on the 15th",
+  "expect": [
+   {
+    "title": "Pay rent",
+    "due": "2026-10-15T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'3 p.m.' format with day-of-month; 'on the' trimmed."
+ },
+ {
+  "input": "send invoice at 23:00",
+  "expect": [
+   {
+    "title": "Send invoice",
+    "due": "2026-10-06T23:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Time-only still in the future today (22:05 now)."
+ },
+ {
+  "input": "submit form by cob",
+  "expect": [
+   {
+    "title": "Submit form",
+    "due": "2026-10-07T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "cob = 17:00, passed today so tomorrow; 'by' trimmed."
+ },
+ {
+  "input": "night shift friday",
+  "expect": [
+   {
+    "title": "Night shift",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'night' not right after a day word stays in title; date only gives 09:00."
+ },
+ {
+  "input": "morning pages tomorrow evening",
+  "expect": [
+   {
+    "title": "Morning pages",
+    "due": "2026-10-07T18:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Leading 'morning' stays in title; 'evening' after 'tomorrow' is 18:00."
+ },
+ {
+  "input": "concert wed night",
+  "expect": [
+   {
+    "title": "Concert",
+    "due": "2026-10-07T20:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Upcoming Wednesday is Oct 7; night after day word = 20:00."
+ },
+ {
+  "input": "meet Tom at 3pm, dinner at 7pm",
+  "expect": [
+   {
+    "title": "Meet Tom",
+    "due": "2026-10-07T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Dinner",
+    "due": "2026-10-07T19:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Two comma pieces each have a time, so two tasks; both passed today so tomorrow."
+ },
+ {
+  "input": "dentist tomorrow 2:30-4pm",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-07T14:30",
+    "durationMin": 90,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Start copies pm: 14:30-16:00."
+ },
+ {
+  "input": "sprint planning tomorrow 9:30 to 11am",
+  "expect": [
+   {
+    "title": "Sprint planning",
+    "due": "2026-10-07T09:30",
+    "durationMin": 90,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Start copies am: 9:30-11:00."
+ },
+ {
+  "input": "laundry in 90 minutes",
+  "expect": [
+   {
+    "title": "Laundry",
+    "due": "2026-10-06T23:35",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "now + 90 min."
+ },
+ {
+  "input": "Water plants every day",
+  "expect": [
+   {
+    "title": "Water plants",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "every day = DAILY; default 09:00 already passed tonight so first occurrence is tomorrow."
+ },
+ {
+  "input": "Standup every weekday at 10am",
+  "expect": [
+   {
+    "title": "Standup",
+    "due": "2026-10-07T10:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Today Tue 10:00 has passed so next matching weekday is Wed Oct 7."
+ },
+ {
+  "input": "Weekly report friday",
+  "expect": [
+   {
+    "title": "Weekly report",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "weekly as first word is not a repeat and stays in the title."
+ },
+ {
+  "input": "Pay rent monthly on the 15th #bills",
+  "expect": [
+   {
+    "title": "Pay rent",
+    "due": "2026-10-15T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "MONTHLY",
+     "interval": 1
+    },
+    "cat": "bills"
+   }
+  ],
+  "why": "monthly (not first word) repeats; the 15th is Oct 15 09:00; dangling 'on' trimmed; tag removed."
+ },
+ {
+  "input": "Submit taxes yearly 2026-11-02",
+  "expect": [
+   {
+    "title": "Submit taxes",
+    "due": "2026-11-02T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "YEARLY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "yearly not first word is a repeat; ISO date, default 09:00."
+ },
+ {
+  "input": "Call mom every monday at 7pm",
+  "expect": [
+   {
+    "title": "Call mom",
+    "due": "2026-10-12T19:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Next Monday is Oct 12 at 19:00."
+ },
+ {
+  "input": "Yoga mondays 6pm",
+  "expect": [
+   {
+    "title": "Yoga",
+    "due": "2026-10-12T18:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "'mondays' = weekly on MO; first occurrence Oct 12 18:00."
+ },
+ {
+  "input": "Mon-fri Stretch break at 3pm",
+  "expect": [
+   {
+    "title": "Stretch break",
+    "due": "2026-10-07T15:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "mon-fri at start; today 15:00 passed so Wed Oct 7; trailing 'at' trimmed."
+ },
+ {
+  "input": "Review inbox every morning",
+  "expect": [
+   {
+    "title": "Review inbox",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "every morning = DAILY at 09:00; today's 09:00 passed."
+ },
+ {
+  "input": "Read book every evening",
+  "expect": [
+   {
+    "title": "Read book",
+    "due": "2026-10-07T18:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "every evening = DAILY at 18:00; today's 18:00 passed (now 22:05)."
+ },
+ {
+  "input": "Take out trash every tuesday at 8pm",
+  "expect": [
+   {
+    "title": "Take out trash",
+    "due": "2026-10-13T20:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "TU"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Today is Tuesday but 20:00 already passed at 22:05, so +7 days."
+ },
+ {
+  "input": "Take out trash every tuesday at 11pm",
+  "expect": [
+   {
+    "title": "Take out trash",
+    "due": "2026-10-06T23:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "TU"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Today Tuesday 23:00 is still ahead, so first occurrence is today."
+ },
+ {
+  "input": "Weekdays 9:30 Planning",
+  "expect": [
+   {
+    "title": "Planning",
+    "due": "2026-10-07T09:30",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "weekdays as first word still repeats; 9:30 bare = AM; today's passed so Wed."
+ },
+ {
+  "input": "Daily backup 5pm",
+  "expect": [
+   {
+    "title": "Daily backup",
+    "due": "2026-10-07T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "daily as first word is not a repeat; time only, 17:00 passed so tomorrow."
+ },
+ {
+  "input": "Backup files daily at 5pm",
+  "expect": [
+   {
+    "title": "Backup files",
+    "due": "2026-10-07T17:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "daily not first word = DAILY; today 17:00 passed so tomorrow."
+ },
+ {
+  "input": "Pay invoice #Finance friday",
+  "expect": [
+   {
+    "title": "Pay invoice",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": "finance"
+   }
+  ],
+  "why": "Tag lowercased and removed from the middle of the text."
+ },
+ {
+  "input": "#work Send report tomorrow 3pm",
+  "expect": [
+   {
+    "title": "Send report",
+    "due": "2026-10-07T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": "work"
+   }
+  ],
+  "why": "Leading tag removed; tomorrow 15:00."
+ },
+ {
+  "input": "call Tom on friday at 2pm",
+  "expect": [
+   {
+    "title": "Call Tom",
+    "due": "2026-10-09T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "First letter uppercased; Tom stays; 'on' and 'at' removed."
+ },
+ {
+  "input": "Lunch with Sam at noon - the new place downtown",
+  "expect": [
+   {
+    "title": "Lunch with Sam",
+    "due": "2026-10-07T12:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Text after spaced dash is description; noon today passed so tomorrow; trailing 'at' trimmed."
+ },
+ {
+  "input": "Dentist 10/20. Bring insurance card",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "US M/D date; text after '. ' is description."
+ },
+ {
+  "input": "Finish slides tomorrow — use the new template",
+  "expect": [
+   {
+    "title": "Finish slides",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Spaced em dash starts description."
+ },
+ {
+  "input": "Read chapter 3 tomorrow",
+  "expect": [
+   {
+    "title": "Read chapter 3",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Bare number without 'at' is not a time and stays in title."
+ },
+ {
+  "input": "Buy 2 tickets for friday",
+  "expect": [
+   {
+    "title": "Buy 2 tickets",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Number kept in title; trailing 'for' trimmed."
+ },
+ {
+  "input": "Pick up 3 packages at 5pm",
+  "expect": [
+   {
+    "title": "Pick up 3 packages",
+    "due": "2026-10-07T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Number in title; 17:00 today passed so tomorrow."
+ },
+ {
+  "input": "Buy milk tomorrow; walk dog friday #pets",
+  "expect": [
+   {
+    "title": "Buy milk",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Walk dog",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": "pets"
+   }
+  ],
+  "why": "'; ' always starts a new task; tag belongs to second task."
+ },
+ {
+  "input": "Gym every monday #health\nWrite blog post thursday",
+  "expect": [
+   {
+    "title": "Gym",
+    "due": "2026-10-12T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO"
+     ]
+    },
+    "cat": "health"
+   },
+   {
+    "title": "Write blog post",
+    "due": "2026-10-08T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Newline splits tasks; Thursday is Oct 8."
+ },
+ {
+  "input": "Email Bob monday, call Jim tuesday",
+  "expect": [
+   {
+    "title": "Email Bob",
+    "due": "2026-10-12T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Call Jim",
+    "due": "2026-10-13T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Two comma pieces with dates split; Tuesday 09:00 passed today so Oct 13."
+ },
+ {
+  "input": "Dinner with Ann, friday, 7pm",
+  "expect": [
+   {
+    "title": "Dinner with Ann",
+    "due": "2026-10-09T19:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Date-only and time-only pieces have no title and glue onto the previous piece."
+ },
+ {
+  "input": "Buy eggs, milk, bread tomorrow",
+  "expect": [
+   {
+    "title": "Buy eggs, milk, bread",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Only one piece has a date, so commas stay in the title."
+ },
+ {
+  "input": "Piano every tue and thu at 4pm",
+  "expect": [
+   {
+    "title": "Piano",
+    "due": "2026-10-08T16:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "TU",
+      "TH"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Today Tue 16:00 passed so first is Thu Oct 8."
+ },
+ {
+  "input": "Run every saturday morning",
+  "expect": [
+   {
+    "title": "Run",
+    "due": "2026-10-10T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "SA"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "'morning' after a day word is a time (09:00)."
+ },
+ {
+  "input": "Morning run tomorrow",
+  "expect": [
+   {
+    "title": "Morning run",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Standalone 'Morning' stays in the title."
+ },
+ {
+  "input": "Movie night saturday",
+  "expect": [
+   {
+    "title": "Movie night",
+    "due": "2026-10-10T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'night' not after a day word is part of the title."
+ },
+ {
+  "input": "WATER THE PLANTS EVERY DAY #Home",
+  "expect": [
+   {
+    "title": "WATER THE PLANTS",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": "home"
+   }
+  ],
+  "why": "Only the first letter is uppercased (rest preserved); tag lowercased."
+ },
+ {
+  "input": "Submit timesheet every friday at 4 #work",
+  "expect": [
+   {
+    "title": "Submit timesheet",
+    "due": "2026-10-09T16:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "FR"
+     ]
+    },
+    "cat": "work"
+   }
+  ],
+  "why": "'at 4' = 4 PM; Friday Oct 9."
+ },
+ {
+  "input": "Yearly review 2026-12-25",
+  "expect": [
+   {
+    "title": "Yearly review",
+    "due": "2026-12-25T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "yearly as first word is title text, no repeat."
+ },
+ {
+  "input": "Mom's birthday yearly on Nov 15",
+  "expect": [
+   {
+    "title": "Mom's birthday",
+    "due": "2026-11-15T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "YEARLY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "yearly after first word repeats; Nov 15 still ahead this year; trailing 'on' trimmed."
+ },
+ {
+  "input": "every weekday standup 9am",
+  "expect": [
+   {
+    "title": "Standup",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Leading 'every' trimmed; today 09:00 passed so Wed."
+ },
+ {
+  "input": "Call Tom for an hour tomorrow at 4",
+  "expect": [
+   {
+    "title": "Call Tom",
+    "due": "2026-10-07T16:00",
+    "durationMin": 60,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Duration removed; 'at 4' = 16:00; connectors trimmed."
+ },
+ {
+  "input": "Renew passport 2026-11-02. Bring 2 photos",
+  "expect": [
+   {
+    "title": "Renew passport",
+    "due": "2026-11-02T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Text after '. ' is description, so its number is ignored."
+ },
+ {
+  "input": "Buy milk tomorrow\nCall mom friday 3pm",
+  "expect": [
+   {
+    "title": "Buy milk",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Call mom",
+    "due": "2026-10-09T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Newline splits; tomorrow no time = 09:00; Friday = Oct 9 at 15:00."
+ },
+ {
+  "input": "Dentist, Friday, 3pm",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-09T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Pieces 'Friday' and '3pm' have no title of their own so they glue onto 'Dentist'; one task."
+ },
+ {
+  "input": "Pay rent Oct 20, 2026\nVisit Tom 20th of October",
+  "expect": [
+   {
+    "title": "Pay rent",
+    "due": "2026-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Visit Tom",
+    "due": "2026-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Comma before the year does not split; '20th of October' without year is still ahead so 2026; default 09:00."
+ },
+ {
+  "input": "Team meeting every mon, wed, fri at 10am",
+  "expect": [
+   {
+    "title": "Team meeting",
+    "due": "2026-10-07T10:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "WE",
+      "FR"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Weekday list commas do not split (title-less pieces glue); first occurrence is Wed Oct 7 10:00."
+ },
+ {
+  "input": "Gym every mon, wed and fri",
+  "expect": [
+   {
+    "title": "Gym",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "WE",
+      "FR"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Today is Tuesday (not in set), next matching day is Wed Oct 7 at default 09:00."
+ },
+ {
+  "input": "Write report; email Bob tomorrow 3pm; call Sue",
+  "expect": [
+   {
+    "title": "Write report",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Email Bob",
+    "due": "2026-10-07T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Call Sue",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'; ' always splits; tasks with neither date nor time get tomorrow 09:00."
+ },
+ {
+  "input": "TMRW 5PM SUBMIT TAXES",
+  "expect": [
+   {
+    "title": "SUBMIT TAXES",
+    "due": "2026-10-07T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "All caps tmrw and 5PM recognised; remaining title keeps its text with first letter uppercase."
+ },
+ {
+  "input": "Call Tom tmr 2pm",
+  "expect": [
+   {
+    "title": "Call Tom",
+    "due": "2026-10-07T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "tmr = tomorrow; name Tom stays in title."
+ },
+ {
+  "input": "Buy gift tmw",
+  "expect": [
+   {
+    "title": "Buy gift",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "tmw = tomorrow, default 09:00."
+ },
+ {
+  "input": "   Water plants   tomorrow    9am  ",
+  "expect": [
+   {
+    "title": "Water plants",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Extra whitespace is trimmed; tomorrow 9am."
+ },
+ {
+  "input": "Lunch with Ann noon friday\nGym #health every weekday 6pm",
+  "expect": [
+   {
+    "title": "Lunch with Ann",
+    "due": "2026-10-09T12:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Gym",
+    "due": "2026-10-07T18:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+     ]
+    },
+    "cat": "health"
+   }
+  ],
+  "why": "Noon Friday Oct 9; weekday repeat at 18:00 already passed today so first occurrence is Wed Oct 7; tag removed."
+ },
+ {
+  "input": "Read book, tomorrow 8pm, walk dog friday 7am",
+  "expect": [
+   {
+    "title": "Read book",
+    "due": "2026-10-07T20:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Walk dog",
+    "due": "2026-10-09T07:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Two pieces carry dates so commas split; 'tomorrow 8pm' has no title and glues onto 'Read book'."
+ },
+ {
+  "input": "Buy eggs, bread, milk",
+  "expect": [
+   {
+    "title": "Buy eggs, bread, milk",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "No piece has a date/time so commas stay in the title; neither date nor time = tomorrow 09:00."
+ },
+ {
+  "input": "Buy eggs, bread tomorrow",
+  "expect": [
+   {
+    "title": "Buy eggs, bread",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Only one piece has a date so no split."
+ },
+ {
+  "input": "Call Anna, tomorrow 10am, email Ben, friday 2pm",
+  "expect": [
+   {
+    "title": "Call Anna",
+    "due": "2026-10-07T10:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Email Ben",
+    "due": "2026-10-09T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Date-only pieces glue onto the preceding titled piece, giving two tasks."
+ },
+ {
+  "input": "Pay bills tomorrow, Water plants friday",
+  "expect": [
+   {
+    "title": "Pay bills",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Water plants",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Both comma pieces contain a date so the comma splits."
+ },
+ {
+  "input": "Meeting 2-3pm tomorrow; Lunch noon; Report eod",
+  "expect": [
+   {
+    "title": "Meeting",
+    "due": "2026-10-07T14:00",
+    "durationMin": 60,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Lunch",
+    "due": "2026-10-07T12:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Report",
+    "due": "2026-10-07T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Range 2-3pm gives 14:00 for 60; noon and eod today have passed at 22:05 so tomorrow."
+ },
+ {
+  "input": "Standup 9:30 daily",
+  "expect": [
+   {
+    "title": "Standup",
+    "due": "2026-10-07T09:30",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "9:30 no am/pm means AM; daily not first word; 09:30 today has passed so first occurrence tomorrow."
+ },
+ {
+  "input": "Daily report tomorrow\nWeekly sync friday",
+  "expect": [
+   {
+    "title": "Daily report",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Weekly sync",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'daily' and 'weekly' as first word of a task are not repeats and stay in the title."
+ },
+ {
+  "input": "Project plan #Work FRIDAY 4PM",
+  "expect": [
+   {
+    "title": "Project plan",
+    "due": "2026-10-09T16:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": "work"
+   }
+  ],
+  "why": "Tag lowercased and removed; uppercase weekday and time recognised."
+ },
+ {
+  "input": "Call dentist #health\nBook flights #travel next monday",
+  "expect": [
+   {
+    "title": "Call dentist",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": "health"
+   },
+   {
+    "title": "Book flights",
+    "due": "2026-10-12T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": "travel"
+   }
+  ],
+  "why": "Each line has its own tag; next monday on Tue Oct 6 = Oct 12."
+ },
+ {
+  "input": "Yoga every morning; Journal every night",
+  "expect": [
+   {
+    "title": "Yoga",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": ""
+   },
+   {
+    "title": "Journal",
+    "due": "2026-10-07T20:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "DAILY",
+     "interval": 1
+    },
+    "cat": ""
+   }
+  ],
+  "why": "every morning = daily 09:00, every night = daily 20:00; both already passed today so first occurrence tomorrow."
+ },
+ {
+  "input": "Movie night friday; Morning run tomorrow",
+  "expect": [
+   {
+    "title": "Movie night",
+    "due": "2026-10-09T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Morning run",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Standalone night/morning stay in the title; dates only give 09:00."
+ },
+ {
+  "input": "Dinner friday evening, Brunch sunday morning",
+  "expect": [
+   {
+    "title": "Dinner",
+    "due": "2026-10-09T18:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Brunch",
+    "due": "2026-10-11T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Both pieces have dates so split; evening 18:00, morning 09:00 after a day word."
+ },
+ {
+  "input": "Pick up kids at 3, call Sam at 4",
+  "expect": [
+   {
+    "title": "Pick up kids",
+    "due": "2026-10-07T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Call Sam",
+    "due": "2026-10-07T16:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "'at 3' and 'at 4' are PM; both times passed today so tomorrow; two timed pieces split."
+ },
+ {
+  "input": "  buy stamps   tomorrow  \n  mail letter   fri 11am ",
+  "expect": [
+   {
+    "title": "Buy stamps",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Mail letter",
+    "due": "2026-10-09T11:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Messy whitespace around each line is trimmed; first letter capitalised."
+ },
+ {
+  "input": "Dentist friday 3pm - bring insurance card; Pay rent Oct 20",
+  "expect": [
+   {
+    "title": "Dentist",
+    "due": "2026-10-09T15:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Pay rent",
+    "due": "2026-10-20T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Text after a spaced dash is a description; '; ' splits tasks; Oct 20 still ahead."
+ },
+ {
+  "input": "Review PR. Then merge; Deploy tomorrow 4pm",
+  "expect": [
+   {
+    "title": "Review PR",
+    "due": "2026-10-07T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Deploy",
+    "due": "2026-10-07T16:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Text after '. ' is description; no date/time gives tomorrow 09:00."
+ },
+ {
+  "input": "Meet Tom 11-1pm thursday, Lunch 12:30 pm saturday",
+  "expect": [
+   {
+    "title": "Meet Tom",
+    "due": "2026-10-08T11:00",
+    "durationMin": 120,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Lunch",
+    "due": "2026-10-10T12:30",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "11-1pm: 11pm would be after 1pm so start is 11am, 120 min; two dated pieces split."
+ },
+ {
+  "input": "Workshop from 9 to 5pm friday; Gym 6-7am saturday",
+  "expect": [
+   {
+    "title": "Workshop",
+    "due": "2026-10-09T09:00",
+    "durationMin": 480,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Gym",
+    "due": "2026-10-10T06:00",
+    "durationMin": 60,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "9 to 5pm: start 9pm would be after end so 9am, 480 min; 6-7am copies am."
+ },
+ {
+  "input": "Write essay for 2 hours tomorrow evening; Call mom in 30 minutes for half an hour",
+  "expect": [
+   {
+    "title": "Write essay",
+    "due": "2026-10-07T18:00",
+    "durationMin": 120,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Call mom",
+    "due": "2026-10-06T22:35",
+    "durationMin": 30,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Duration 120 with tomorrow evening 18:00; 'in 30 minutes' = now+30 and 'for half an hour' = 30 min."
+ },
+ {
+  "input": "Stretch in 2 hours\nSubmit form in 3 days at 2pm",
+  "expect": [
+   {
+    "title": "Stretch",
+    "due": "2026-10-07T00:05",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Submit form",
+    "due": "2026-10-09T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "22:05 + 2h = 00:05 next day; +3 days is Oct 9 with stated time 14:00."
+ },
+ {
+  "input": "Renew passport next month; Pay taxes end of month",
+  "expect": [
+   {
+    "title": "Renew passport",
+    "due": "2026-11-06T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Pay taxes",
+    "due": "2026-10-31T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "next month = Nov 6; end of month = Oct 31; default 09:00."
+ },
+ {
+  "input": "Piano lesson tue 4:30 pm for an hour #music; Dentist weds 10am",
+  "expect": [
+   {
+    "title": "Piano lesson",
+    "due": "2026-10-13T16:30",
+    "durationMin": 60,
+    "repeat": null,
+    "cat": "music"
+   },
+   {
+    "title": "Dentist",
+    "due": "2026-10-07T10:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Tuesday 16:30 has passed today so +7 days = Oct 13; weds = Wed Oct 7."
+ },
+ {
+  "input": "Run mon-fri 6:30am; Stretch weekdays 7am",
+  "expect": [
+   {
+    "title": "Run",
+    "due": "2026-10-07T06:30",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+     ]
+    },
+    "cat": ""
+   },
+   {
+    "title": "Stretch",
+    "due": "2026-10-07T07:00",
+    "durationMin": null,
+    "repeat": {
+     "freq": "WEEKLY",
+     "interval": 1,
+     "byday": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+     ]
+    },
+    "cat": ""
+   }
+  ],
+  "why": "Today's morning times have passed, so first occurrence is Wed Oct 7."
+ },
+ {
+  "input": "Call Bob 3/5/27\nBirthday party 2/14",
+  "expect": [
+   {
+    "title": "Call Bob",
+    "due": "2027-03-05T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Birthday party",
+    "due": "2027-02-14T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "US M/D/YY = Mar 5 2027; 2/14 already passed this year so 2027."
+ },
+ {
+  "input": "Gym 5pm, Dentist 2pm friday",
+  "expect": [
+   {
+    "title": "Gym",
+    "due": "2026-10-07T17:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Dentist",
+    "due": "2026-10-09T14:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Both pieces contain a time/date so split; 5pm today passed so tomorrow."
+ },
+ {
+  "input": "Submit invoice the 15th; Rent due on the 15th at 8am",
+  "expect": [
+   {
+    "title": "Submit invoice",
+    "due": "2026-10-15T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Rent",
+    "due": "2026-10-15T08:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "The 15th is still ahead this month; trailing connectors 'due on' trimmed from title."
+ },
+ {
+  "input": "Haircut day after tomorrow 4pm, Gym tomorrow 7am",
+  "expect": [
+   {
+    "title": "Haircut",
+    "due": "2026-10-08T16:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Gym",
+    "due": "2026-10-07T07:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "Day after tomorrow = Oct 8; two dated pieces split."
+ },
+ {
+  "input": "Pack bags weekend; Fly out sat 6am",
+  "expect": [
+   {
+    "title": "Pack bags",
+    "due": "2026-10-10T09:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   },
+   {
+    "title": "Fly out",
+    "due": "2026-10-10T06:00",
+    "durationMin": null,
+    "repeat": null,
+    "cat": ""
+   }
+  ],
+  "why": "weekend = coming Saturday Oct 10 at 09:00; sat 6am is 06:00."
+ }
+]
