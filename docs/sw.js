@@ -1,5 +1,5 @@
-// Offline app shell: serve cached files first, refresh them in the background.
-const CACHE = 'planner-v2';
+// Offline app shell: online -> always fetch the newest files (and refresh the cache); offline -> serve the cache.
+const CACHE = 'planner-v3';
 const SHELL = ['./', 'index.html', 'app.js', 'ai.js', 'parse.js', 'year.js', 'ics.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -14,13 +14,14 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   e.respondWith(
-    caches.open(CACHE).then(async (c) => {
-      const hit = await c.match(req, { ignoreSearch: true });
-      const net = fetch(req).then((res) => {
-        if (res.ok) c.put(req, res.clone());
+    fetch(req)
+      .then((res) => {
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
         return res;
-      });
-      return hit || net.catch(() => c.match('index.html'));
-    }),
+      })
+      .catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match('index.html')),
   );
 });

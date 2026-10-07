@@ -54,22 +54,13 @@ function toast(msg, ms = 4000) {
 }
 
 // ---- delivering a file to the iPhone (calendar import / backup) ----
-// Research notes: the share sheet is the dependable path from an installed home-screen app
-// (downloads there can open a preview with no way back); a typed-Blob download link is the
-// dependable path in a normal Safari tab. Never navigate to a data: URL.
+// Research notes: in a normal Safari tab a typed-Blob download link is the route most likely to open the
+// "Add to Calendar" sheet; in an installed home-screen app downloads can open a preview with no way back,
+// so only the share sheet is tried there. Never navigate to a data: URL.
 const isStandalone = () => navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+const ICS_MIME = 'text/calendar;charset=utf-8';
 
-async function deliver(filename, mime, text) {
-  const file = new File([text], filename, { type: mime.split(';')[0] });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: filename });
-      return 'shared';
-    } catch (e) {
-      if (e && e.name === 'AbortError') return 'cancelled';
-    }
-  }
-  if (isStandalone()) return 'unavailable';
+function downloadFile(filename, mime, text) {
   const url = URL.createObjectURL(new Blob([text], { type: mime }));
   const a = document.createElement('a');
   a.href = url;
@@ -78,7 +69,26 @@ async function deliver(filename, mime, text) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 60000);
-  return 'downloaded';
+}
+
+// Must be called straight from a tap handler (iOS requires a user gesture for the share sheet).
+async function shareFile(filename, mime, text) {
+  const file = new File([text], filename, { type: mime.split(';')[0] });
+  if (!(navigator.canShare && navigator.canShare({ files: [file] }))) return 'unavailable';
+  try {
+    await navigator.share({ files: [file], title: filename });
+    return 'shared';
+  } catch (e) {
+    return e && e.name === 'AbortError' ? 'cancelled' : 'unavailable';
+  }
+}
+
+async function deliver(filename, mime, text) {
+  if (!isStandalone()) {
+    downloadFile(filename, mime, text);
+    return 'downloaded';
+  }
+  return shareFile(filename, mime, text);
 }
 
 async function sendToCalendar(tasks) {
@@ -87,10 +97,11 @@ async function sendToCalendar(tasks) {
   const r = await deliver(list.length === 1 ? 'task.ics' : 'planner-tasks.ics', 'text/calendar;charset=utf-8', buildICS(list, { lead: LEAD }));
   if (r === 'cancelled') return;
   if (r === 'unavailable') return toast('The share sheet did not open. Open this page in Safari (not the home-screen icon) and try again.', 8000);
+  if (r === 'downloaded') toast('If no “Add to Calendar” sheet appeared, tap the download arrow in Safari’s address bar and open the file. See Settings → Calendar methods.', 9000);
   list.forEach((t) => (t.reminded = true));
   save();
   render();
-  toast('Tap “Add to Calendar” / “Add All” to finish — Calendar will alert you 30 min before.', 7000);
+  if (r === 'shared') toast('Choose Calendar in the share sheet to finish.', 7000);
 }
 
 // ---- tasks ----
@@ -244,6 +255,11 @@ function settingsView() {
       <button data-a="save-key">Save</button></div>
     <div class="card"><b>Reminders</b>
       <p class="note">iPhone web apps can't schedule their own alerts, so each task is sent to the Calendar app as an event with an alert ${LEAD} minutes before. Calendar then notifies you even when this app is closed.</p></div>
+    <div class="card"><b>Calendar methods</b>
+      <p class="note">If a task's “add to Calendar” button doesn't bring up Calendar's Add screen, try each of these. Each sends a test event 40 minutes from now with a ${LEAD}-minute alert.</p>
+      <button class="sec" data-a="test-dl">1. Download link (use in Safari)</button>
+      <button class="sec" data-a="test-open">2. Open file in this tab (use in Safari)</button>
+      <button class="sec" data-a="test-share">3. Share sheet</button></div>
     <div class="card"><b>Backup</b>
       <p class="note">Tasks live in this app's storage on your phone. Save a backup now and then.</p>
       <button class="sec" data-a="export">Export backup</button>
@@ -310,6 +326,19 @@ document.addEventListener('click', async (e) => {
     store.set('planner.apiKey', state.key);
     store.set('planner.model', state.model);
     toast('Saved.');
+  } else if (a === 'test-dl' || a === 'test-open' || a === 'test-share') {
+    const ics = buildICS(
+      [{ id: 'test-' + Date.now(), title: 'Planner test', description: 'Test event from Claude Planner', due: new Date(Date.now() + 40 * 60000).toISOString() }],
+      { lead: LEAD },
+    );
+    if (a === 'test-dl') downloadFile('planner-test.ics', ICS_MIME, ics);
+    else if (a === 'test-open') {
+      if (isStandalone()) return toast('Open this page in a Safari tab (not the home-screen icon) to try this one.', 6000);
+      location.href = URL.createObjectURL(new Blob([ics], { type: ICS_MIME }));
+    } else {
+      const r = await shareFile('planner-test.ics', ICS_MIME, ics);
+      if (r === 'unavailable') toast('Share sheet not available here.');
+    }
   } else if (a === 'export') deliver('planner-backup.json', 'application/json', JSON.stringify(state.tasks, null, 2));
   else if (a === 'import') $('#file').click();
 });
